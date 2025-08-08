@@ -56,6 +56,13 @@ class Museo:
             print(f"{indice}. {departamento}")
             indice+=1
 
+        opcion = input("\nIngrese el numero del departamento que deseas ver: ")
+        while (not opcion.isnumeric()) or (not int(opcion) in range(1, indice+1)):
+            print("Error!")
+            opcion = input("\nIngrese el numero del departamento que deseas ver: ")
+
+        depto_select = self.departamentos[int(opcion)-1]
+
 
     def buscar_obras_nacionalidad(self):
         indice = 1
@@ -63,6 +70,42 @@ class Museo:
             print(f"{indice}. {nacionalidad}")
             indice+=1
 
+        opcion = input("\nIngrese el numero de la nacionalidad: ")
+        while (not opcion.isnumeric()) or (not int(opcion) in range(1, indice+1)):
+            print("Error!")
+            opcion = input("\nIngrese el numero de la nacionalidad: ")
+
+        nacionalidad_select = self.nacionalidades[int(opcion)-1]
+
+        obras_nacionalidad = []
+
+        for obra in self.obras:
+            if nacionalidad_select.lower() in obra.autor.nacionalidad.lower():
+                obras_nacionalidad.append(obra)
+
+        if len(obras_nacionalidad) != 0:
+            for obra in obras_nacionalidad:
+                print("")
+                obra.show()
+        else:
+            print(f"\nNo se encontraron obras cuya nacionalidad del autor sea: {nacionalidad_select}")
+
+
+    def buscar_obras_autor(self):
+        nombre = input("\nIngrese el nombre del autor: ")
+
+        obras_autor = []
+
+        for obra in self.obras:
+            if obra.autor.nombre.lower() == nombre.lower():
+                obras_autor.append(obra)
+
+        if len(obras_autor) != 0:
+            for obra in obras_autor:
+                print("")
+                obra.show()
+        else:
+            print(f"\nNo se encontraron obras cuyo autor sea: {nombre}")
 
     def menu(self):
         """
@@ -88,9 +131,19 @@ Ingrese la opcion deseada
             if opcion == "1":
                 self.buscar_obras_departamentos()
             elif opcion == "2":
-                self.buscar_obras_nacionalidad()
+                if len(self.obras) != 0:
+                    self.buscar_obras_nacionalidad()
+                else:
+                    print("""
+\nPor favor realice una busqueda por departamentos para cargar alguna obras y luego poder probar esta funcionalidad
+                          """)
             elif opcion == "3":
-                pass
+                if len(self.obras) != 0:
+                    self.buscar_obras_autor()
+                else:
+                    print("""
+\nPor favor realice una busqueda por departamentos para cargar alguna obras y luego poder probar esta funcionalidad
+                          """)
             elif opcion == "4":
                 print("\nAdios!")
                 break
