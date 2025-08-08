@@ -153,14 +153,26 @@ class Museo:
 
                     else:
                         print(f"Error {detalle.status_code}")
+
+                while True:
+                    ver_imagen = input("\nEscriba el id de la obra para mostrar la imagen o 0 para salir: ")
+                    while not ver_imagen.isnumeric():
+                        print("\nError! El ID debe ser un numero")
+                        ver_imagen = input("Escriba el id de la obra para mostrar la imagen o 0 para salir: ")
+                    
+                    if ver_imagen == "0":
+                        break
+                    else:
+                        self.mostrar_imagen(int(ver_imagen))
+
                 
                 inicio += lote
                 if inicio >= total:
-                    print("No hay más obras.")
+                    print("No hay más obras.\n")
                     break
-                respuesta = input("¿Mostrar las siguientes 15 obras? (s/n): ").lower()
+                respuesta = input("\n¿Mostrar las siguientes 15 obras? (s/n): ").lower()
                 if respuesta != "s":
-                    print("Finalizando.")
+                    print("\nFinalizando.")
                     break
                 time.sleep(2)
 
@@ -192,12 +204,48 @@ class Museo:
                 obra_select = obra
                 break
 
-        url = obra_select.imagen
+        if obra_select != None:
 
-        self.guardar_imagen()
+            url = obra_select.imagen
+            nombre_archivo = f"{obra_select.id}_{obra_select.titulo}" 
 
-    def guardar_imagen(self):
-        pass
+            nombre_archivo_destino = self.guardar_imagen_desde_url(url, nombre_archivo)
+            img = Image.open(nombre_archivo_destino)
+            img.show()
+
+        else:
+            print("No se enconctro una obra con ese id: ")
+
+    def guardar_imagen_desde_url(self, url, nombre_archivo):
+        """
+        Descarga una imagen desde una URL y la guarda en un archivo.
+        """
+        try:
+            response = requests.get(url, stream=True)
+            response.raise_for_status() # Lanza una excepción para códigos de estado de error (4xx o 5xx)
+            content_type = response.headers.get('Content-Type')
+            extension = '.png' # Valor por defecto
+            
+            if content_type:
+                if 'image/png' in content_type:
+                    extension = '.png'
+                elif 'image/jpeg' in content_type:
+                    extension = '.jpg'
+                elif 'image/svg+xml' in content_type:
+                    extension = '.svg'
+                
+            nombre_archivo_final = f"{nombre_archivo}{extension}"
+            with open(nombre_archivo_final, 'wb') as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+            print(f"\nImagen guardada exitosamente como '{nombre_archivo_final}'")
+            
+        except requests.exceptions.RequestException as e:
+            print(f"Error al hacer el request: {e}")
+        except IOError as e:
+            print(f"Error al escribir el archivo: {e}")
+        
+        return nombre_archivo_final
 
     def buscar_obras_nacionalidad(self):
         """
@@ -229,6 +277,17 @@ class Museo:
             for obra in obras_nacionalidad:
                 print("")
                 obra.show()
+
+            while True:
+                ver_imagen = input("\nEscriba el id de la obra para mostrar la imagen o 0 para salir: ")
+                while not ver_imagen.isnumeric():
+                    print("\nError! El ID debe ser un numero")
+                    ver_imagen = input("Escriba el id de la obra para mostrar la imagen o 0 para salir: ")
+                
+                if ver_imagen == "0":
+                    break
+                else:
+                    self.mostrar_imagen(int(ver_imagen))
         else:
             print(f"\nNo se encontraron obras cuya nacionalidad del autor sea: {nacionalidad_select}")
 
@@ -251,6 +310,17 @@ class Museo:
             for obra in obras_autor:
                 print("")
                 obra.show()
+
+            while True:
+                ver_imagen = input("\nEscriba el id de la obra para mostrar la imagen o 0 para salir: ")
+                while not ver_imagen.isnumeric():
+                    print("\nError! El ID debe ser un numero")
+                    ver_imagen = input("Escriba el id de la obra para mostrar la imagen o 0 para salir: ")
+                
+                if ver_imagen == "0":
+                    break
+                else:
+                    self.mostrar_imagen(int(ver_imagen))
         else:
             print(f"\nNo se encontraron obras cuyo autor sea: {nombre}")
 
